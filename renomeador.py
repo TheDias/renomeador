@@ -37,7 +37,7 @@ def gerar_novos_nomes(
 
         if numerar:
             total = len(arquivos) + inicio - 1
-            largura = max(len(str(total)), 3)
+            largura = max(len(str(total)), 1)
             numero = str(i + inicio).zfill(largura)
             novo_nome = f"{prefixo}{numero}{separador}{stem}{sufixo}{ext}"
         else:
