@@ -1,5 +1,7 @@
 # renomeador
 
+[![Tests](https://github.com/TheDias/renomeador/actions/workflows/tests.yml/badge.svg)](https://github.com/TheDias/renomeador/actions/workflows/tests.yml)
+
 Script Python para renomeação de arquivos em lote. Adiciona prefixo, sufixo ou numeração sequencial aos nomes dos arquivos, com suporte a filtro por extensão e modo de simulação.
 
 ## Instalação
