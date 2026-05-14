@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 
-from renomeador import gerar_novos_nomes, listar_arquivos, renomear_arquivos
+from renomeador import gerar_novos_nomes, listar_arquivos, renomear_arquivos, renomear_com_regex
 
 
 @pytest.fixture
@@ -162,3 +162,31 @@ def test_retorno_e_lista_de_tuplas(pasta):
     assert isinstance(resultado, list)
     assert all(isinstance(par, tuple) and len(par) == 2 for par in resultado)
     assert all(isinstance(par[0], Path) and isinstance(par[1], Path) for par in resultado)
+
+
+# --- renomear_com_regex ---
+
+
+def test_regex_match_simples(pasta):
+    # "foto" → "imagem" no stem de foto1.jpg e foto2.jpg
+    renomear_com_regex(pasta, padrao=r"foto", substituicao="imagem")
+    nomes = {f.name for f in pasta.iterdir() if f.is_file()}
+    assert "imagem1.jpg" in nomes
+    assert "imagem2.jpg" in nomes
+    assert "documento.pdf" in nomes  # sem match, inalterado
+
+
+def test_regex_captura_grupos(pasta):
+    # captura o número e reposiciona: "foto1" → "img_1"
+    renomear_com_regex(pasta, padrao=r"foto(\d+)", substituicao=r"img_\1")
+    nomes = {f.name for f in pasta.iterdir() if f.is_file()}
+    assert "img_1.jpg" in nomes
+    assert "img_2.jpg" in nomes
+
+
+def test_regex_sem_match_nao_renomeia(pasta):
+    nomes_antes = {f.name for f in pasta.iterdir() if f.is_file()}
+    resultado = renomear_com_regex(pasta, padrao=r"xyz_nao_existe", substituicao="qualquer")
+    nomes_depois = {f.name for f in pasta.iterdir() if f.is_file()}
+    assert nomes_antes == nomes_depois
+    assert all(original == novo for original, novo in resultado)
