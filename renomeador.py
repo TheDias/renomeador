@@ -2,6 +2,7 @@
 """Renomeador de arquivos em lote — prefixo, sufixo ou numeração sequencial."""
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -70,6 +71,35 @@ def renomear_arquivos(
         return []
 
     renomeacoes = gerar_novos_nomes(arquivos, prefixo, sufixo, numerar, inicio, separador)
+
+    if not dry_run:
+        for original, novo in renomeacoes:
+            if original != novo:
+                original.rename(novo)
+
+    return renomeacoes
+
+
+def renomear_com_regex(
+    pasta: Path,
+    padrao: str,
+    substituicao: str,
+    extensao: str | None = None,
+    dry_run: bool = False,
+) -> list[tuple[Path, Path]]:
+    """
+    Renomeia arquivos aplicando uma expressão regular ao stem (nome sem extensão).
+
+    Returns:
+        Lista de tuplas (caminho_original, caminho_novo).
+    """
+    arquivos = listar_arquivos(pasta, extensao)
+    renomeacoes = []
+
+    for arq in arquivos:
+        novo_stem = re.sub(padrao, substituicao, arq.stem)
+        novo_caminho = arq.parent / (novo_stem + arq.suffix)
+        renomeacoes.append((arq, novo_caminho))
 
     if not dry_run:
         for original, novo in renomeacoes:
